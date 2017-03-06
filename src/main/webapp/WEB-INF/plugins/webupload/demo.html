@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<script src="jquery-1.11.1.min.js" type="text/javascript"></script>
+<link href="css/webuploader.css" rel='stylesheet' type='text/css'/>
+<script src="js/webuploader.min.js" type="text/javascript"></script>
+
+
+
+</head>
+<body>
+
+<div id="upload-demo">
+	<div id="fileList" class="uploader-list"></div>
+	<div id="filePicker">头像上传</div>
+</div>
+
+<script type="text/javascript">
+	var uploader = WebUploader.create({
+		auto:true,
+		pick:{
+			id:'#filePicker',
+			multiple:false
+		},
+		accpet:{
+			title:'Images',
+			extensions:'gif,jpg,jpeg,bmp,png',
+			mineType:'image/*'
+		}
+	})
+	
+	uploader.on('fileQueued',function(file){
+		var $li = $('<div id="'+file.id+'" class="file-item thumbail">'+
+				'<img></div><div><button>设置为头像</botton><button onclick="resetImage()">取消</botton></div>'),
+			$img = $li.find('img');
+		$("#fileList").append($li);
+		$("#filePicker").css('display','none');
+		uploader.makeThumb(file,function(error,src){
+			if(error){
+				$img.replaceWith('<span>不能预览</span>');
+				return;
+			}
+			$img.attr('src',src);
+		},100,100)
+	});
+	
+	uploader.on('uploadProgress',function(file,percetage){
+		console.log("文件上传进度："+percetage);
+	});
+	
+	function resetImage(){
+		$("#fileList").text("");
+		$("#filePicker").css('display',''); 
+		uploader.reset();
+	}
+</script>
+
+
+</body>
+</html>

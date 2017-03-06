@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd" version="1.0">
+
+    <!-- BookStore "unit" -->
+    <persistence-unit name="BookStore">
+        <class>com.aring.bean.User</class>
+        <class>com.aring.bean.UserInfo</class>
+        <class>com.aring.bean.ManagerInfo</class>
+        <class>com.aring.bean.Book</class>
+        <class>com.aring.bean.FileInfo</class>
+        <class>com.aring.bean.Specialist</class>
+        <class>com.aring.bean.BookSpecialist</class>
+        <class>com.aring.bean.OrderBook</class>
+        <class>com.aring.bean.Order</class>
+        <class>com.aring.bean.Store</class>
+        <class>com.aring.bean.Post</class>
+        <class>com.aring.bean.PostTag</class>
+        <exclude-unlisted-classes/>
+
+        <properties>
+            <!-- ENABLE THESE FOR MySQL/MariaDB -->
+            <!-- Change the "nucleus" to your database name, and the user/password -->
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/book_store?characterEncoding=utf-8"/>
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
+            <property name="javax.persistence.jdbc.user" value="root" />
+            <property name="javax.persistence.jdbc.password" value="root"/>
+            <property name="datanucleus.connectionPoolingType" value="tomcat"/>
+            <property name="datanucleus.schema.autoCreateAll" value="true"/>
+            <property name="datanucleus.connectionPool.maxPoolSize" value="5"/>
+            <property name="datanucleus.connectionPool.maxIdle" value="10"/>
+            <property name="datanucleus.connectionPool.leakThreshold" value="1"/>
+            <property name="datanucleus.connectionPool.maxLifetime" value="240"/>
+            <property name="datanucleus.schema.autoCreateAll" value="true"/>
+        </properties> 
+    </persistence-unit>
+
+</persistence>
