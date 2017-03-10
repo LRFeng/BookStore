@@ -5,8 +5,10 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.aring.bean.Book;
 import com.aring.bean.BookPO;
 import com.aring.bean.Cart;
+import com.aring.bean.Comment;
 import com.aring.bean.Order;
 import com.aring.bean.OrderBook;
 import com.aring.bean.Post;
@@ -30,6 +33,7 @@ import com.aring.bean.User;
 import com.aring.bean.UserInfo;
 import com.aring.exception.StoreException;
 import com.aring.service.BookService;
+import com.aring.service.CommentService;
 import com.aring.service.CommonService;
 import com.aring.service.OrderService;
 import com.aring.service.PostService;
@@ -57,6 +61,9 @@ public class StoreController {
 	
 	@Autowired
 	private PostService postService;
+	
+	@Autowired
+	private CommentService commentService;
 	
 	
 	@RequestMapping("/")
@@ -262,7 +269,7 @@ public class StoreController {
 		ModelAndView mav = new ModelAndView();
 		try {
 			User user = (User) session.getAttribute("user");
-			if(user==null) throw new StoreException("鏈櫥褰�");
+			if(user==null) throw new StoreException("未登录");
 			String oidStr = request.getParameter("oids");
 			String[] oids = oidStr.split(":");
 			List<Order> orders = new ArrayList<>();
@@ -329,7 +336,7 @@ public class StoreController {
 	}
 	
 	@RequestMapping("post")
-	private ModelAndView postPage(HttpServletRequest request)throws Exception{
+	public ModelAndView postPage(HttpServletRequest request)throws Exception{
 		ModelAndView mav = new ModelAndView("/store/post");
 		String tag = request.getParameter("tag");
 		String keyword = request.getParameter("keyword");
@@ -398,6 +405,7 @@ public class StoreController {
 		}
 	}
 	
+	@RequestMapping("like-post")
 	public void likePost(HttpServletRequest request,HttpServletResponse response)throws Exception{
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
@@ -411,9 +419,9 @@ public class StoreController {
 			if(pid==null || "".equals(pid)){
 				throw new StoreException("参数不合法");
 			}
-			postService.likePost(user.getId(),Integer.valueOf(pid));
+			 int num = postService.likePost(user.getId(),Integer.valueOf(pid));
 			success = true;
-			message="已点赞";
+			message=num+"";
 		}catch (StoreException e) {
 			e.printStackTrace();
 			message =e.getMessage();
@@ -426,6 +434,81 @@ public class StoreController {
 			out.close();
 		}
 	}
+	
+	@RequestMapping("detail")
+	public ModelAndView postDetail(HttpServletRequest request) throws Exception{
+		ModelAndView mav = new ModelAndView("/store/postdetail");
+		String pid	= request.getParameter("id");
+		Map<Integer,User> userMap = new HashMap<>();
+		Set<Integer> uidSet = new HashSet<>();
+		Post post = postService.getPostByPrimary(Integer.valueOf(pid));
+		User puser = userService.getUserByPrimaryKey(post.getUid());
+		List<String> urls = commonService.listImageUrls(PostService.POST_TABLE_NAME,post.getId());
+		if(uidSet.add(puser.getId())){
+			userMap.put(puser.getId(),puser);
+		}
+		List<Comment> comments = commentService.listComment(Integer.valueOf(pid));
+		for (Comment comment : comments) {
+			if(comment.getCuid()!=0 && uidSet.add(comment.getCuid())){
+				User user = userService.getUserByPrimaryKey(comment.getCuid());
+				userMap.put(user.getId(),user);
+			}
+			if(comment.getSuid()!=0 && uidSet.add(comment.getSuid())){
+				User user = userService.getUserByPrimaryKey(comment.getSuid());
+				userMap.put(user.getId(),user);
+			}
+		}
+		mav.addObject("post", post);
+		mav.addObject("comments", comments);
+		mav.addObject("userMap",userMap);
+		mav.addObject("urls", urls);
+		return mav;
+	}
+	
+	@RequestMapping("post-comment")
+	public void postComment(HttpServletRequest request,HttpServletResponse response) throws Exception{
+		request.setCharacterEncoding("UTF-8");
+		response.setCharacterEncoding("UTF-8");
+		PrintWriter out = response.getWriter();
+		boolean success = false;
+		String message = null;
+		try {
+			User user = (User) request.getSession().getAttribute("user");
+			if(user==null) throw new StoreException("未登录");
+			String pid =request.getParameter("pid");
+			String suid = request.getParameter("suid");//被回复人
+			String content = request.getParameter("content");
+			if(pid==null || "".equals(pid)){
+				throw new StoreException("参数不合法");
+			}
+			
+			if(content==null || "".equals(content)){
+				throw new StoreException("内容不能为空");
+			}
+			
+			Comment comment = new Comment();
+			comment.setContent(content);
+			comment.setCuid(user.getId());
+			comment.setPid(Integer.valueOf(pid));
+			if(suid!=null && !"".equals(suid)){
+				comment.setSuid(Integer.valueOf(suid));
+			}
+			commentService.saveComment(comment);
+			success = true;
+			message="评论成功";
+		}catch (StoreException e) {
+			e.printStackTrace();
+			message =e.getMessage();
+		}catch (Exception e) {
+			e.printStackTrace();
+			message ="服务器异常";
+		}finally {
+			String result = "{success:"+success+",msg:\""+message+"\"}";
+			out.println(result);
+			out.close();
+		}
+	}
+	
 	
 	private String saveCart(User user, Cart cart) throws Exception{
 		Map<Integer,List<Book>> map = new HashMap<>();

@@ -3,8 +3,10 @@ package com.aring.movie_GT;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -24,12 +26,20 @@ public class MyTest {
 		
 	}
 	
-	@Test
+	//@Test
 	public void testJson2() throws Exception{
 		String test = "[{\"id\": 1,\"str\":\"test\"}]";
 		ObjectMapper mapper = new ObjectMapper();
 		List<HashMap<String, String>> list = mapper.readValue(test, new TypeReference<List<Map<String,String>>>(){});
 		System.out.println(list);
+	}
+	
+	@Test
+	public void testSet(){
+		Set<Integer> idSet = new HashSet<>();
+		System.out.println(idSet.add(1));
+		System.out.println(idSet.add(1));
+		
 	}
 	
 	

@@ -49,6 +49,12 @@ public class PostServiceImpl implements PostService{
 		
 	}
 
+	
+	@Override
+	public Post getPostByPrimary(int pid) throws Exception {
+		return em.find(Post.class, pid);
+	}
+	
 	@Override
 	public List<Post> listSearchPost(Integer tag, String keyword, String sort, Integer page) throws Exception {
 		if(null==keyword) keyword ="";
@@ -106,9 +112,10 @@ public class PostServiceImpl implements PostService{
 
 	@Override
 	@Transactional
-	public void likePost(Integer uid, Integer pid) throws Exception {
+	public int likePost(Integer uid, Integer pid) throws Exception {
 		Post post =	em.find(Post.class,pid);
 		post.setLike(post.getLike()+1);
 		em.merge(post);
+		return post.getLike();
 	}
 }

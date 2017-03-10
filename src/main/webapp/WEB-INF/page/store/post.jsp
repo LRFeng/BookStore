@@ -115,7 +115,7 @@
 					<span>${user.name }</span>
 				</div>
 				<div class="col-md-11 content-right">
-					<h4><a href="#" style="color: blue;">${post.title}</a><small style="float: right;">
+					<h4><a href="detail?id=${post.id}" style="color: blue;">${post.title}</a><small style="float: right;">
 					发布时间：<fmt:formatDate pattern="yyyy-MM-dd HH:mm" value="${post.createDate}"/> </small> </h4>
 					<p style="padding-left: 10px;">${post.content}</p>
 					<p>	
@@ -123,7 +123,7 @@
 							<img src="${url}">
 						</c:forEach>
 					</p>
-					<p><button>评论(${post.commentNum})</button><button>赞(${post.like})</button></p>
+					<p><button>评论(${post.commentNum})</button><button id="likeBtn-${post.id}" onclick="likePost(${post.id})">赞(<span>${post.like}</span>)</button></p>
 				</div>
 			</div>
 		</c:forEach>
@@ -332,6 +332,33 @@ function goPage(page){
 	}
 	window.location.href="post?tag=${param.tag}&keyword="
 			+"${param.keyword}&sort=${param.sort}&page="+page;
+}
+
+function likePost(pid){
+	$.ajax({
+		url:'like-post',
+		data:{
+			pid:pid
+		},
+		success:function(resp){
+			var data = eval("("+resp+")");
+			if(data.success){
+				$("#likeBtn-"+pid).attr("disabled","disabled");
+				$("#likeBtn-"+pid).css("color","red");
+				$("#likeBtn-"+pid+" span").text(data.msg);
+			}else{
+				alert(data.msg);
+			}
+		},
+		error:function(resp){
+			alert("服务出错");
+		}
+		
+	});
+	
+	
+	
+	
 }
 
 </script>

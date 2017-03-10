@@ -15,6 +15,8 @@ public interface PostService {
 	
 	public void savePostImage(int pid,String fids) throws Exception;
 	
+	public Post getPostByPrimary(int pid) throws Exception;
+ 	
 	/**
 	 * 条件查询帖子
 	 * @param tag
@@ -34,7 +36,7 @@ public interface PostService {
 	 * @param pid
 	 * @throws Exception
 	 */
-	public void likePost(Integer uid,Integer pid)throws Exception;
+	public int likePost(Integer uid,Integer pid)throws Exception;
 	
 	
 }

@@ -17,6 +17,7 @@
         <class>com.aring.bean.Store</class>
         <class>com.aring.bean.Post</class>
         <class>com.aring.bean.PostTag</class>
+        <class>com.aring.bean.Comment</class>
         <exclude-unlisted-classes/>
 
         <properties>
