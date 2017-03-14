@@ -179,6 +179,16 @@ public class StoreController {
 		}
 	}
 	
+	@RequestMapping("logout")
+	public ModelAndView logout(HttpSession session) throws Exception{
+		ModelAndView mav = new ModelAndView("redirect:/");
+		session.removeAttribute("user");
+		return mav;
+	}
+	
+	
+	
+	
 	@RequestMapping(value="/single")
 	public ModelAndView singlePage(HttpSession session,Integer id) throws Exception{
 		ModelAndView mav = new ModelAndView("store/single");
@@ -508,6 +518,97 @@ public class StoreController {
 			out.close();
 		}
 	}
+	
+	@RequestMapping("personal")
+	public ModelAndView personalPage(HttpSession session){
+		ModelAndView mav = new ModelAndView();
+		User user = (User) session.getAttribute("user");
+		if(user==null){
+			mav.setViewName("/store/login");
+		}else{
+			mav.setViewName("/store/personal");
+			User user2 = userService.getUserByPrimaryKey(user.getId());
+			session.setAttribute("user", user2);
+			UserInfo userInfo = userService.getUserInfoByUid(user.getId());
+			mav.addObject("userInfo", userInfo);
+		}
+		return mav;
+	}
+	
+	@RequestMapping("save-user")
+	public void saveUserInfo(HttpServletRequest request,HttpServletResponse response) throws Exception{
+		request.setCharacterEncoding("UTF-8");
+		response.setCharacterEncoding("UTF-8");
+		PrintWriter out = response.getWriter();
+		boolean success = false;
+		String message = null;
+		try {
+			User user = (User) request.getSession().getAttribute("user");
+			if(user==null) throw new StoreException("未登录");
+			String name = request.getParameter("name");
+			if(name==null || name.equals("")){
+				message = "昵称不能为空";
+			}else{
+				user.setName(name);
+				UserInfo userInfo = new UserInfo();
+				userInfo.setUid(user.getId());
+				userInfo.setAddress(request.getParameter("address"));
+				String year = request.getParameter("collegeYear");
+				if(year!=null){
+					userInfo.setCollegeYear(Integer.valueOf(year));
+				}
+				userInfo.setSchool(request.getParameter("school"));
+				userInfo.setSpecialist(request.getParameter("specialist"));
+				userInfo.setTelephone(request.getParameter("telephone"));
+				userService.updateUserInfo(user,userInfo);
+				request.setAttribute("user",user);
+				success = true;
+				message = "保存成功";
+			}
+		}catch (StoreException e) {
+			e.printStackTrace();
+			message =e.getMessage();
+		}catch (Exception e) {
+			e.printStackTrace();
+			message ="服务器异常";
+		}finally {
+			String result = "{success:"+success+",msg:\""+message+"\"}";
+			out.println(result);
+			out.close();
+		}
+	}
+	
+	@RequestMapping("save-user-image")
+	public void saveUserImage(HttpServletRequest request,HttpServletResponse response) throws Exception{
+		request.setCharacterEncoding("UTF-8");
+		response.setCharacterEncoding("UTF-8");
+		PrintWriter out = response.getWriter();
+		boolean success = false;
+		String message = null;
+		try {
+			User user = (User) request.getSession().getAttribute("user");
+			if(user==null) throw new StoreException("未登录");
+			String avatar = request.getParameter("avatar");
+			if(avatar==null || avatar.equals("")) throw new StoreException("更新失败");
+			userService.updateUserImage(user.getId(),Integer.valueOf(avatar));
+			success = true;
+			message = "保存成功";
+		}catch (StoreException e) {
+			e.printStackTrace();
+			message =e.getMessage();
+		}catch (Exception e) {
+			e.printStackTrace();
+			message ="服务器异常";
+		}finally {
+			String result = "{success:"+success+",msg:\""+message+"\"}";
+			out.println(result);
+			out.close();
+		}
+	}
+	
+	
+	
+	
 	
 	
 	private String saveCart(User user, Cart cart) throws Exception{

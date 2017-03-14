@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -88,5 +89,36 @@ public class UserServiceImpl implements UserService{
 		user.setAvatar(appConfig.getFileServerDomain()+user.getAvatar());
 		return user;
 	}
+	
+	@Override
+	public UserInfo getUserInfoByUid(int uid) {
+		String sql = "select u from UserInfo u where u.uid="+uid;
+		TypedQuery<UserInfo> query = em.createQuery(sql,UserInfo.class);
+		return query.getSingleResult();
+	}
+	
+	@Override
+	@Transactional
+	public void updateUserInfo(User user,UserInfo userInfo) throws Exception{
+		UserInfo userInfo2 = getUserInfoByUid(userInfo.getUid());
+		userInfo.setId(userInfo2.getId());
+		User user2 = em.find(User.class,user.getId());
+		user2.setName(user.getName());
+		em.merge(user2);
+		em.merge(userInfo);
+	}
+	
+	@Override
+	@Transactional
+	public void updateUserImage(int uid,int fid) throws Exception {
+		FileInfo fileInfo = em.find(FileInfo.class, fid);
+		fileInfo.setWhich(USER_TABLE_NAME);
+		fileInfo.setWid(uid);
+		em.merge(fileInfo);
+		User user  = em.find(User.class, uid);
+		user.setAvatar(fileInfo.getUrl());
+		em.merge(user);
+	}
+	
 
 }

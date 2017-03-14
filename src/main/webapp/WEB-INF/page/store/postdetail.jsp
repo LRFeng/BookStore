@@ -66,6 +66,21 @@
 .comment-content a{
 	color: blue;
 }
+
+.write-post{
+	border:1px rgba(0,0,0,0.1) dashed;
+	border-bottom:none;
+	margin: 15px 0px;
+}
+
+.file-option{
+	margin: 20px 0px;
+}
+
+.file-option input[type='button']{
+	margin-right: 100px;
+}
+
 	
 </style>
 
@@ -137,6 +152,49 @@
 					</div>
 				</div>
 			</div>
+			
+		    		<div id="addPost" class="col-md-12 write-post">
+		<h3 style="margin-top: 20px;">发布区  <small><button class="btn-all" style="float: right;" onclick="publicPost()">发布</button></small> </h3>
+		<form class="form-horizontal">
+			<div class="form-group">
+			 	 <label class="col-sm-1 control-label">类型</label>
+			 	 <div class="col-sm-11">
+			 	 	 <c:forEach var="tag" items="${postTags}">
+				 	 	 <label class="checkbox-inline">
+						    <input type="radio" name="postTag" value="${tag.id}" checked>${tag.name}
+						  </label>
+					</c:forEach>
+				  </div>
+				</div>
+		  <div class="form-group">
+		    <label class="col-sm-1 control-label">标题</label>
+		    <div class="col-sm-11">
+		      <input id="postTitle" type="text" class="form-control" id="firstname">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="lastname" class="col-sm-1 control-label">内容</label>
+		    <div class="col-sm-11">
+		   		<textarea id="postContent" class="form-control" rows="10"></textarea>
+		    </div>
+		  </div>
+		  
+		  <div class="form-group">
+		    <div class="col-sm-12">
+		    		<h3><small>最多可上传3张图片</small></h3>
+					<div id="fileList" class="uploader-list"></div>
+					<div id="filePicker">图片选择</div>
+					<div class="col-sm-12 file-option" style="display: none;">
+						<input id="uploadBtn" class="btn-all" onclick="upload()" type="button" value="上传"/>
+						<input class="btn-all" onclick="cancel()" type="button" value="取消"/>
+					</div>
+					<input id="fids" type="hidden">
+		    </div>
+		  </div>
+		  
+		</form>
+		</div>	
+		
 		<jsp:include page="footer.jsp"></jsp:include>
   	</div>
 
@@ -187,48 +245,120 @@ function comment(suid,cid){
 		}
 		
 	});
-	
-	
 }
 
+var fids ='';
+var flag = false;
 
-function goPage(page){
-	var max = parseInt("${pager.countPage}");
-	if(page==undefined||page==null || page==0){
-		page=$(".myPager input").val();
-		if(page<1||page>max){
-			page =1;
-		}
+var uploader = WebUploader.create({
+    server: 'common/single-file-upload',
+    pick: '#filePicker',
+    fileNumLimit:3,
+    // 只允许选择图片文件。
+    accept: {
+        title: 'Images',
+        extensions: 'gif,jpg,jpeg,bmp,png',
+        mimeTypes: 'image/*'
+    }
+});
+
+uploader.on( 'fileQueued', function( file ) {
+    var $li = $('<div id="' + file.id + '" class="col-sm-4"><img></div>'),
+        $img = $li.find('img');
+    // $list为容器jQuery实例
+   $("#fileList").append( $li );
+   
+    // 创建缩略图
+    uploader.makeThumb( file, function( error, src ) {
+        if ( error ) {
+            $img.replaceWith('<span>不能预览</span>');
+            return;
+        }
+        $img.attr( 'src', src );
+    }, 200);
+});
+
+uploader.on('filesQueued',function(files){
+	$("#filePicker").css('display','none');
+	$(".file-option").css('display','');
+});
+
+
+uploader.on('uploadSuccess', function(file,response) {
+	var data = eval("("+response._raw+")");
+	 if(data.success){
+		 flag = true;
+		 fids=fids+data.fid+":";
+	}else{
+		 flag = false;
+	} 
+});
+
+uploader.on('uploadFinished', function() {
+	if(flag){
+		fids = fids.substring(0,fids.length-1);
+		$("#fids").val(fids);
+		$("#uploadBtn").css('display','none');
+		alert("图片上传成功");
+	}else{
+		alert("文件上传失败");
+	} 
+});
+
+
+
+uploader.on('uploadError', function( file,reason) {
+   flag = false;
+});
+
+
+function upload(){
+	uploader.upload();
+}
+
+function cancel(){
+    $("#fileList").text("");
+	$("#filePicker").css('display','');
+	$(".file-option").css('display','none');
+	uploader.reset(); 
+}
+
+function publicPost(){
+	var tag = $("input[name='postTag']:checked").val();
+	var title = $("#postTitle").val();
+	var content = $("#postContent").val();
+	var fids = $("#fids").val();
+	
+	if(tag==''){
+		alert("没有选择新帖类型");
+		return;
+	}else if(title==''){
+		alert("标题不能为空");
+		return;
 	}
-	window.location.href="post?tag=${param.tag}&keyword="
-			+"${param.keyword}&sort=${param.sort}&page="+page;
-}
-
-function likePost(pid){
+	
 	$.ajax({
-		url:'like-post',
+		url:'public-post',
+		type:'post',
 		data:{
-			pid:pid
+			tag:tag,
+			title:title,
+			content:content,
+			fids:fids
 		},
 		success:function(resp){
 			var data = eval("("+resp+")");
 			if(data.success){
-				$("#likeBtn-"+pid).attr("disabled","disabled");
-				$("#likeBtn-"+pid).css("color","red");
-				$("#likeBtn-"+pid+" span").text(data.msg);
+				window.location.reload();
 			}else{
 				alert(data.msg);
 			}
 		},
 		error:function(resp){
-			alert("服务出错");
+			alert("发布失败");
+			console.log(resp);
 		}
-		
 	});
-	
-	
-	
-	
 }
 
 </script>

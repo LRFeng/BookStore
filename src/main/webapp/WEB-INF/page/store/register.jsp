@@ -127,12 +127,16 @@ $(document).ready(function(){
 		var password2 = $("#password2").val()
 		if(name==null ||name==''){
 			alert("昵称不能为空");
+			return;
 		}else if(email==null || email ==''){
 			alert("邮箱地址不能为空");
+			return;
 		}else if(password==null || password ==''){
 			alert("密码不能为空");
+			return;
 		}else if(password!=password2){
 			alert("密码不一致");
+			return;
 		}
 		
 		$.ajax({

@@ -24,4 +24,11 @@ public interface UserService {
 	
 	public User getUserByPrimaryKey(int key);
 	
+	public UserInfo getUserInfoByUid(int uid);
+	
+	public void updateUserInfo(User user,UserInfo userInfo) throws Exception; 
+	
+	public void updateUserImage(int uid,int fid) throws Exception;
+	
+	
 }

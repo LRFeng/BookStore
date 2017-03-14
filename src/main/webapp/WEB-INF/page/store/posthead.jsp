@@ -78,7 +78,7 @@
 						  </div>
 						</div>
 					</li>
-				    <li class="grid"><a class="color2" href="post?tag=&keyword=&sort=createDate:0&page=1"">教材论坛</a>
+				    <li class="grid"><a class="color2" href="post?tag=&keyword=&sort=createDate:0&page=1">教材论坛</a>
 					  <div class="megapanel">
 						<div class="row">
 							<div class="col1">
@@ -107,9 +107,9 @@
 			  	   					<div class="btn-group">
 										<button type="button" class="btn btn-link dropdown-toggle" style="font-size: 1em;" data-toggle="dropdown">${user.name}<span class="caret"></span></button>
 										<ul class="dropdown-menu" role="menu">
-											<li><a href="#">个人中心</a></li>
-											<li><a href="#">修改密码</a></li>
-											<li><a href="#">退出登录</a></li>
+											<li><a href="personal">个人中心</a></li>
+											<li><a href="#">新消息</a></li>
+											<li><a href="logout">退出登录</a></li>
 										</ul>
 									</div>
 								</li>
