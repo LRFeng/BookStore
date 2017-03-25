@@ -1,25 +1,20 @@
 package com.aring.movie_GT;
 
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.swing.text.html.HTML.Tag;
 
 import org.junit.Test;
 
-import com.aring.bean.Book;
 import com.aring.bean.BookSpecialist;
 import com.aring.bean.Order;
 import com.aring.bean.OrderBook;
 import com.aring.bean.PostTag;
-import com.aring.bean.Specialist;
 import com.aring.bean.Store;
+import com.aring.management.bean.MenuBasic;
 
 public class DataNucleusTest {
 
@@ -157,7 +152,6 @@ public class DataNucleusTest {
 		}
 	}
 	
-	@Test
 	public void postTagTest(){
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("BookStore");
 		EntityManager manager = factory.createEntityManager();
@@ -169,6 +163,29 @@ public class DataNucleusTest {
 			tag.setName("吐槽帖");
 			tag.setStatus(1);
 			manager.persist(tag);
+			et.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			et.rollback();
+		}finally {
+			if(et.isActive()){
+				manager.close();
+			}
+		}
+	}
+	
+	@Test
+	public void testMemu(){
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("BookStore");
+		EntityManager manager = factory.createEntityManager();
+		EntityTransaction et = manager.getTransaction();
+		try {
+			et.begin();
+			MenuBasic menuBasic = new MenuBasic();
+			menuBasic.setIsFile(0);
+			menuBasic.setName("店铺管理");
+			menuBasic.setStatus(1);
+			manager.persist(menuBasic);
 			et.commit();
 		} catch (Exception e) {
 			e.printStackTrace();

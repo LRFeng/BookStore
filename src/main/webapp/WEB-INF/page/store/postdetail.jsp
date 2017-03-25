@@ -113,7 +113,7 @@
 						<div class="form-group" style="margin-top: 30px;">
 						    <div class="col-sm-12">
 						   		<textarea name="comment" placeholder="说点什么..."  class="form-control" rows="3"></textarea>
-						   		<button class="btn-all" style="margin-top:5px;;font-size: 10px;" onclick="comment()">评论</button>
+						   		<button class="btn-all" style="margin-top:5px;font-size: 10px;" onclick="comment()">评论</button>
 						    </div>
 						 </div>
 					</div>

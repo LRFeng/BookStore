@@ -18,6 +18,7 @@
         <class>com.aring.bean.Post</class>
         <class>com.aring.bean.PostTag</class>
         <class>com.aring.bean.Comment</class>
+        <class>com.aring.management.bean.MenuBasic</class>
         <exclude-unlisted-classes/>
 
         <properties>

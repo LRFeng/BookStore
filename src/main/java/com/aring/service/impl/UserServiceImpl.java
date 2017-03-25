@@ -119,6 +119,15 @@ public class UserServiceImpl implements UserService{
 		user.setAvatar(fileInfo.getUrl());
 		em.merge(user);
 	}
+
+
+	@Override
+	@Transactional
+	public void updatePass(User user) throws Exception {
+		User user2 = em.find(User.class,user.getId());
+		user2.setPassword(user.getPassword());
+		em.merge(user2);
+	}
 	
 
 }

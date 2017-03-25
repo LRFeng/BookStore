@@ -26,5 +26,6 @@ encoding//src/main/java/com/aring/service/impl/UserServiceImpl.java=UTF-8
 encoding//src/main/java/com/aring/utils/AppConfig.java=UTF-8
 encoding//src/main/java/com/aring/utils/CommonUtils.java=UTF-8
 encoding//src/main/resource/configuration/config.properties=UTF-8
+encoding//src/main/webapp/WEB-INF/page/book/index.ftl=UTF-8
 encoding//src/main/webapp/WEB-INF/page/store/footer.jsp=UTF-8
 encoding//src/test/java=UTF-8

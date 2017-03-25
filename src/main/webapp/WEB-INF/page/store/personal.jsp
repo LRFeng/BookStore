@@ -43,6 +43,27 @@
 	margin-bottom: 50px;
 }
 
+.list-item{
+	display:block;
+	width: 100%;
+	height: 50px;
+	border: 1px solid rgba(0,0,0,0.1);
+	line-height: 50px;
+	padding-left: 20%;
+	color: black;
+	text-decoration: none;
+}
+
+.list-item:link{
+	text-decoration: none;
+}
+
+
+.list-item:hover,.list-item:ACTIVE,.myactive{
+	text-decoration:none;
+	background-color: #e05b5b;
+	color: white;
+}
 
 </style>
 
@@ -52,7 +73,13 @@
 	<div class="container">
    		<jsp:include page="head.jsp"></jsp:include>
    		<div class="col-sm-3 content-left">
-				<jsp:include page="personalleft.jsp"></jsp:include>
+				<div>
+					<a href="personal" class="list-item myactive">个人信息</a> 
+					<a href="message" class="list-item">我的消息</a> 
+					<a href="order" class="list-item">我的书单</a> 
+					<a href="personal-post" class="list-item">我的帖子</a>
+					<a href="modify-pass" class="list-item">修改密码</a>
+				</div>
 			</div>
 			<div class="col-sm-8 content-right register">
 		  	  <form> 

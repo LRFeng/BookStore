@@ -30,5 +30,6 @@ public interface UserService {
 	
 	public void updateUserImage(int uid,int fid) throws Exception;
 	
+	public void updatePass(User user) throws Exception;
 	
 }

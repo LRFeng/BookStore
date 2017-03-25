@@ -22,6 +22,5 @@
 		<property name="filePath" value="${fileServer.filePath}"/>
 		<property name="fileMaxSize" value="${fileServer.fileMaxSize}"/>
 	</bean>
-	
-	
+
 </beans>

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Service;
@@ -133,6 +134,70 @@ public class OrderServiceImpl implements OrderService{
 			order.setUserMessage(message);
 			em.merge(order);
 		}
+	}
+
+	@Override
+	public List<Order> listOrderByState(String state, int uid,int page) {
+		StringBuffer sql = new StringBuffer("select t from Order t where t.uid=");
+		sql.append(uid).append(" and");
+		if(null == state){
+			state="";
+		}
+		switch (state) {
+		case ORDER_WAIT:
+			sql.append(" t.status=1");
+			break;
+		case ORDER_FINISHED:
+			sql.append(" t.status=2");
+			break;
+		case ORDER_UNABLE:
+			sql.append(" t.status=0");
+			break;
+		default:
+			sql.append(" (t.status=1 or t.status=2)");
+			break;
+		}
+		sql.append(" order by t.createDate desc");
+		TypedQuery<Order> query = em.createQuery(sql.toString(),Order.class);
+		query.setFirstResult(ORDER_PAGE_SIZE*(page-1));
+		query.setMaxResults(ORDER_PAGE_SIZE);
+		return query.getResultList();
+	}
+	
+	@Override
+	public Map<String,Long> countOrderByState(String state, int uid, int page) throws Exception {
+		StringBuffer sql = new StringBuffer("select count(t.id) from Order t where t.uid=");
+		sql.append(uid).append(" and");
+		if(null == state){
+			state="";
+		}
+		switch (state) {
+		case ORDER_WAIT:
+			sql.append(" t.status=1");
+			break;
+		case ORDER_FINISHED:
+			sql.append(" t.status=2");
+			break;
+		case ORDER_UNABLE:
+			sql.append(" t.status=0");
+			break;
+		default:
+			sql.append(" (t.status=1 or t.status=2)");
+			break;
+		}
+		Query query = em.createQuery(sql.toString());
+		Long count = (Long) query.getSingleResult();
+		Map<String,Long> pager = new HashMap<>();
+		pager.put("count", count);
+		if(count==0){
+			pager.put("countPage",0L);
+			pager.put("currPage",0L);
+		}else{
+			pager.put("countPage",count%ORDER_PAGE_SIZE==0?count/ORDER_PAGE_SIZE:(count/ORDER_PAGE_SIZE+1));
+			pager.put("currPage",Long.valueOf(page));
+		}
+		
+		return pager;
 	}
 
 }

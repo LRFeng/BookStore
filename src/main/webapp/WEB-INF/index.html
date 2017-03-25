@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="js/book.js"></script>
+<script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="plugins/easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../dwr/engine.js"></script>
+<script type="text/javascript" src="../dwr/interface/menuService.js"></script>
+
+<link href="css/book.css" rel='stylesheet' type='text/css' />
+<link href="css/bootstrap.css" rel='stylesheet' type='text/css' />
+<link rel="stylesheet" type="text/css" href="plugins/easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="plugins/easyui/themes/icon.css">
+
+
+</head>
+<body>
+	<div class="col-sm-12" style="background: #2D3E50;">
+		<img alt="" src="../static/img/logo.png" style="margin: 10px 10%">
+		<ul class="nav nav-top navbar-right">
+			<li><a href="#">教材吧入口</a></li>
+			<li class="dropdown"><a class="dropdown-toggle"
+				data-toggle="dropdown" href="#"> 新消息<span class="caret"></span>
+			</a>
+				<ul class="dropdown-menu">
+					<li><a href="#">Swing</a></li>
+					<li><a href="#">jMeter</a></li>
+					<li><a href="#">EJB</a></li>
+					<li class="divider"></li>
+					<li><a href="#">分离的链接</a></li>
+				</ul></li>
+			<li><a href="#">退出登录</a></li>
+		</ul>
+	</div>
+
+	<div id="cc" class="easyui-layout" style="width: 100%; height: 600px;">
+		<div data-options="region:'west',title:'我的菜单',split:true,boder:false" style="width: 10%;">
+			<ul id="menu" class="easyui-tree"></ul>
+		</div>
+		<div data-options="region:'center',split:true"
+			style="width: 100%; height: 500px; border: none;">
+
+			<div id="menuTabss" class="easyui-tabs"
+				style="width: 100%; height: 100%;">
+				<div title="首页" style="padding: 20px; display: none;">
+					编号：<input id="text" class="easyui-numberbox" data-options="validType:''">
+					菜单名：<input id="" type="text" data-options="validType:'email'">
+					<table id="dg" style="min-height: 300px;"></table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+<div id="tb">
+<a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-edit',plain:true"/a>
+<a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-help',plain:true"/a>
+</div>
+
+	<script type="text/javascript">
+	  
+	var col = [[
+        {field:'id',title:'编号',width:100},
+        {field:'name',title:'菜单名',width:100},
+        {field:'url',title:'路径',width:100},
+        {field:'isFile',title:'是否页面',width:100,
+        	formatter:function(value,row,index){
+        		if(value=='0'){
+        			return "否";
+        		}else{
+        			return "是";
+        		}
+        	}
+        },
+        {field:'status',title:'状态',width:100,align:'right'}
+    ]]
+	
+	
+	 
+	$(document).ready(function(){
+		//加载菜单
+		menuService.queryMenus({
+			callback:function(data){
+				$("#menu").tree({
+					data:data,
+					animate:true,
+					onClick: function(node){
+						if(node.children!=null){//目录
+							$("#menu").tree('toggle',node.target);
+						}else{//向tab添加选项卡
+							if($('#menuTabs').tabs('exists',node.id)){
+								$('#menuTabs').tabs('select',node.id);
+							}else{
+								$('#menuTabs').tabs('add',{
+									title:node.text,
+									id:node.id,
+									content:'<div style="padding:10px">'+node.text+'</div>',
+									closable: true
+					            });
+							}
+						}
+					}
+				});
+			},
+			timeout:5000,
+			errorHandler:function(message) { 
+				alert("菜单加载失败");
+				consol.log(message);
+			}
+		});
+		
+		
+		$('#dg').datagrid({
+			loadMsg:"正在装载数据，请稍后...",
+			emptyMsg:"暂无数据",
+			fitColumns:true, //自动适应宽
+			striped:true, //行条纹
+			pagination:true,//分页
+			rownumbers:true,//显示行码
+			singleSelect:true,//单选
+			ctrlSelect:true,//ctrl+单击 可多选
+			pageSize:10,
+			toolbar:'#tb',
+		    columns:[[
+		        {field:'id',title:'编号',width:100},
+		        {field:'name',title:'菜单名',width:100},
+		        {field:'url',title:'路径',width:100},
+		        {field:'isFile',title:'是否页面',width:100,
+		        	formatter:function(value,row,index){
+		        		if(value=='0'){
+		        			return "否";
+		        		}else{
+		        			return "是";
+		        		}
+		        	}
+		        },
+		        {field:'status',title:'状态',width:100,align:'right'}
+		    ]]/*,
+		    data:data [
+		    	{id:12221,url:"book",isFile:0,status:2,name:"test",nn:'wyg'},
+		    	{id:12221,name:"test",url:"book",isFile:0,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:0,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:0,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:1,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:0,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:0,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:1,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:0,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:0,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:0,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:1,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:0,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:0,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:0,status:2},
+		    	{id:12221,name:"test",url:"book",isFile:0,status:2}
+		    ]  */
+		
+		});
+		
+		$('#dg').datagrid('loadData',[
+	    	{id:12221,url:"book",isFile:0,status:2,name:"test",nn:'wyg'},
+	    	{id:12221,name:"test",url:"book",isFile:0,status:2}]);
+		
+		
+	});
+	
+	  
+	  
+	  
+	 
+</script>
+
+
+</body>
+
+</html>

@@ -101,7 +101,7 @@ public class StoreController {
 			}else if(password==null || password.equals("")){
 				message = "密码不能为空";
 			}else if(!password.equals(password2)){
-				message = "确认密码不能为空";
+				message = "密码不一致";
 			}else{
 				User user = new User();
 				user.setName(name);
@@ -606,9 +606,124 @@ public class StoreController {
 		}
 	}
 	
+	@RequestMapping("message")
+	public ModelAndView messagePage(HttpServletRequest request){
+		ModelAndView mav = new ModelAndView("/store/message");
+		return mav;
+	}
+	
+	@RequestMapping("modify-pass")
+	public ModelAndView modifyPassPage(HttpSession session){
+		ModelAndView mav = new ModelAndView("/store/modifypass");
+		if(session.getAttribute("user")==null){
+			mav.setViewName("/store/login");
+		}
+		return mav;
+	}
 	
 	
+	@RequestMapping("do-modify-pass")
+	public void modifyPass(HttpServletRequest request, HttpServletResponse response) throws Exception{
+		request.setCharacterEncoding("UTF-8");
+		response.setCharacterEncoding("UTF-8");
+		PrintWriter out = response.getWriter();
+		boolean success = false;
+		String message = null;
+		try {
+			User user = (User) request.getSession().getAttribute("user");
+			if(user==null) throw new StoreException("未登录");
+			String oldPass = request.getParameter("oldPass");
+			String newPass = request.getParameter("newPass");
+			String newPass2 = request.getParameter("newPass2");
+			if(null == oldPass ||oldPass.equals(user.getPassword())){
+				throw new StoreException("密码不正确");
+			}
+			
+			if(newPass==null || newPass.equals("")){
+				throw new StoreException("密码不能为空");
+			}
+			if(!newPass.equals(newPass2)){
+				throw new StoreException("密码不一致");
+			}
+			user.setPassword(newPass);
+			userService.updatePass(user);
+			request.getSession().removeAttribute("user");
+			success = true;
+			message = "保存成功";
+		}catch (StoreException e) {
+			e.printStackTrace();
+			message =e.getMessage();
+		}catch (Exception e) {
+			e.printStackTrace();
+			message ="服务器异常";
+		}finally {
+			String result = "{success:"+success+",msg:\""+message+"\"}";
+			out.println(result);
+			out.close();
+		}
+	}
 	
+	@RequestMapping("order")
+	public ModelAndView orderPage(HttpServletRequest request) throws Exception{
+		ModelAndView mav = new ModelAndView("/store/order");
+		User user = (User) request.getSession().getAttribute("user");
+		if(user==null){
+			mav.setViewName("/store/login");
+		}else{
+			String state = request.getParameter("state");
+			String pageStr = request.getParameter("page");
+			int page = 0;
+			try {
+				page = Integer.valueOf(pageStr);
+			} catch (Exception e) {
+				page=1;
+			}
+			if(page<1) {
+				page=1; 
+			}
+			List<Order> orders = orderService.listOrderByState(state, user.getId(), page);
+			Map<String,Long> pager = orderService.countOrderByState(state,  user.getId(), page);
+			mav.addObject("orders", orders);
+			mav.addObject("pager", pager);
+		}
+		return mav;
+	}
+	
+	@RequestMapping("order-detail")
+	public ModelAndView orderDetailPage(HttpServletRequest request,HttpSession session){
+		ModelAndView mav = new ModelAndView();
+		try {
+			User user = (User) session.getAttribute("user");
+			if(user==null) throw new StoreException("未登录");
+			String idStr = request.getParameter("id");
+			Map<Integer,List<OrderBook>> mapBookPos = new HashMap<>();
+			Map<Integer,Book> mapBook = new HashMap<>();
+			Map<Integer,Store> mapStore = new HashMap<>();
+			Integer id = Integer.valueOf(idStr);
+			Order order = orderService.getOrderByPrimaryKey(id);
+			if(order!=null){
+				mapStore.put(id,storeService.getStoreByPrimary(order.getSid()));
+				List<OrderBook> bookPOs = orderService.listOrderBookByOid(id);
+				for (OrderBook orderBook : bookPOs) {
+					Book book = bookService.getByPrimary(orderBook.getBid());
+					mapBook.put(orderBook.getBid(),book);
+				}
+				mapBookPos.put(id,bookPOs);
+			}
+			mav.setViewName("store/orderdetail");
+			mav.addObject("order",order);
+			mav.addObject("mapBookPos",mapBookPos);
+			mav.addObject("mapBook",mapBook);
+			mav.addObject("mapStore",mapStore);
+		}catch (StoreException e) {
+			e.printStackTrace();
+			mav.setViewName("redirect:/login");
+		} catch (Exception e) {
+			e.printStackTrace();
+			mav.setViewName("redirect:/");
+		}
+		return mav;
+	}
 	
 	
 	private String saveCart(User user, Cart cart) throws Exception{
@@ -673,6 +788,4 @@ public class StoreController {
 		}
 		return cart;
 	}
-	
-	
 }

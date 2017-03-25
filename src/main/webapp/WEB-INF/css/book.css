@@ -1,0 +1,35 @@
+.active{
+	background-color:rgba(0,0,0,0.1);
+	color: red;
+}
+
+.nav-top li{
+	float: left;
+	color: white;
+	line-height: 50px;
+}
+
+.nav-top a{
+	color:white;
+	font-size:18px;
+}
+
+
+.nav-left li{
+	border: 1px solid rgba(0,0,0,0.1);
+}
+
+.nav-left a:hover{
+	background-color: rgba(0,0,0,0.1);
+}
+
+.content-left{
+	margin-top: 10px;
+}
+
+.content-right{
+	margin-top:10px;
+	height:800px;
+	background-color: rgba(0,0,0,0.04);
+	
+}
