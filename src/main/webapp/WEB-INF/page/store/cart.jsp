@@ -195,7 +195,7 @@ tfoot span{
 							  
 <script type="text/javascript">
 function reduceF(itemID,bid){
-	var buyNum =  parseInt($("#"+itemID+" #buy-num").val());
+	var buyNum =  parseFloat($("#"+itemID+" #buy-num").val());
 	var price = parseInt($("#"+itemID+" input[type='hidden']").val());
 	if(buyNum<=1){
 		$("#"+itemID+" .btn-reduce").attr("disabled","disabled");
@@ -221,13 +221,13 @@ function reduceF(itemID,bid){
 	$("#"+itemID+" td span").text(sprice.toFixed(2));
 	if($("#"+itemID+" input[name='checkbox']").is(':checked')){
 		$("tfoot span:first").text(cart.count);
-		$("tfoot span:last").text("&yen;"+cart.sum.toFixed(2));
+		$("tfoot span:last").html("&yen;"+cart.sum.toFixed(2));
 	}
 	$.cookie("cart",cart);
 }
 
 function addF(remainder,itemID,bid){
-	var price = parseInt($("#"+itemID+" input[type='hidden']").val());
+	var price = parseFloat($("#"+itemID+" input[type='hidden']").val());
 	var buyNum =  parseInt($("#"+itemID+" #buy-num").val());
 	if(buyNum>=remainder){
 		$("#"+itemID+" .btn-add").attr("disabled","disabled");
@@ -253,9 +253,10 @@ function addF(remainder,itemID,bid){
 	$("#"+itemID+" td span").text(sprice.toFixed(2));
 	if($("#"+itemID+" input[name='checkbox']").is(':checked')){
 		$("tfoot span:first").text(cart.count);
-		$("tfoot span:last").text("&yen;"+cart.sum.toFixed(2));
+		$("tfoot span:last").html("&yen;"+cart.sum.toFixed(2));
 	}
 	$.cookie("cart",cart);
+	console.log(cart);
 }
 
 function checkAll(){
@@ -277,7 +278,7 @@ function checkAll(){
 		$("input[name='checkbox']").prop("checked",false); 
 	}
 	$("tfoot span:first").text(cart.count);
-	$("tfoot span:last").text("&yen;"+cart.sum.toFixed(2));
+	$("tfoot span:last").html("&yen;"+cart.sum.toFixed(2));
 	console.log($.cookie("cart")); 
 }
 
@@ -308,7 +309,7 @@ function checkBox(itemID,bid){
 	}
 	
 	$("tfoot span:first").text(cart.count);
-	$("tfoot span:last").text("&yen;"+cart.sum.toFixed(2));
+	$("tfoot span:last").html("&yen;"+cart.sum.toFixed(2));
 	$.cookie("cart",cart);
 }
 

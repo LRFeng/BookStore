@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.aring.bean.FileInfo;
 import com.aring.bean.Post;
+import com.aring.exception.StoreException;
 import com.aring.service.PostService;
 
 @Service
@@ -59,7 +60,7 @@ public class PostServiceImpl implements PostService{
 	public List<Post> listSearchPost(Integer tag, String keyword, String sort, Integer page) throws Exception {
 		if(null==keyword) keyword ="";
 		StringBuffer sql = new StringBuffer();
-		sql.append("select p from Post p where (p.title like '%")
+		sql.append("select p from Post p where p.status=1 and (p.title like '%")
 			.append(keyword).append("%' or p.content like '%")
 			.append(keyword).append("%')");
 		if(tag!=null){
@@ -82,7 +83,7 @@ public class PostServiceImpl implements PostService{
 			throws Exception {
 		if(null==keyword) keyword ="";
 		StringBuffer sql = new StringBuffer();
-		sql.append("select count(p.id) from Post p where (p.title like '%")
+		sql.append("select count(p.id) from Post p where p.status=1 and (p.title like '%")
 			.append(keyword).append("%' or p.content like '%")
 			.append(keyword).append("%')");
 		if(tag!=null){
@@ -118,4 +119,54 @@ public class PostServiceImpl implements PostService{
 		em.merge(post);
 		return post.getLike();
 	}
+	
+	@Override
+	public List<Post> listPostByUser(int uid, int page) throws Exception {
+		String sql = "select p from Post p where p.status > 0 and p.uid="+uid+" order by p.createDate desc";
+		TypedQuery<Post> query = em.createQuery(sql,Post.class);
+		query.setFirstResult(POST_PAGE_SIZE*(page-1));
+		return query.getResultList();
+	}
+	
+	@Override
+	public Map<String,Long> countPostByUser(int uid, int page) throws Exception {
+		String sql = "select count(p.id) from Post p where p.status > 0 and p.uid="+uid;
+		Query query = em.createQuery(sql.toString());
+		Long count = (Long) query.getSingleResult();
+		Map<String,Long> pager = new HashMap<>();
+		pager.put("count", count);
+		if(count==0){
+			pager.put("countPage",0L);
+			pager.put("currPage",0L);
+		}else{
+			pager.put("countPage",count%POST_PAGE_SIZE==0?count/POST_PAGE_SIZE:(count/POST_PAGE_SIZE+1));
+			pager.put("currPage",Long.valueOf(page));
+		}
+		return pager;
+	}
+	
+	@Transactional
+	@Override
+	public void updatePostStatus(String pid, String state) throws Exception {
+		int status = -1;
+		try {
+			status = Integer.valueOf(state);
+		} catch (Exception e) {
+			throw new StoreException("操作不合法");
+		}
+		switch (status) {
+		case POST_DEL:
+		case POST_PUBLIC:
+		case POST_RECALL:
+			Post post = em.find(Post.class, pid);
+			if(post!=null){
+				post.setStatus(status);
+				em.merge(post);
+			}
+			break;
+		default:
+			throw new StoreException("操作不合法");
+		}
+	}
+	
 }

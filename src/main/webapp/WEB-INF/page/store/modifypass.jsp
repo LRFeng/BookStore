@@ -81,9 +81,9 @@
 				<div>
 					<a href="personal" class="list-item">个人信息</a> 
 					<a href="message" class="list-item">我的消息</a> 
-					<a href="" class="list-item">我的书单</a>
-					<a href="#" class="list-item">我的帖子</a> 
-					<a href="modify-pass"class="list-item myactive">修改密码</a>
+					<a href="order" class="list-item">我的书单</a> 
+					<a href="my-post" class="list-item">我的帖子</a>
+					<a href="modify-pass" class="list-item myactive">修改密码</a>
 				</div>
 			</div>
 			<div class="col-sm-8 content-right register">

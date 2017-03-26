@@ -725,6 +725,72 @@ public class StoreController {
 		return mav;
 	}
 	
+	@RequestMapping("my-post")
+	public ModelAndView myPostPage(HttpServletRequest request) throws Exception{
+		ModelAndView mav = new ModelAndView("/store/mypost");
+		User user = (User) request.getSession().getAttribute("user");
+		if(null==user){
+			mav.setViewName("/store/login");
+			return mav;
+		}
+		String pageStr = request.getParameter("page");
+		int page = 0;
+		try {
+			page = Integer.valueOf(pageStr);
+		} catch (Exception e) {
+			page=1;
+		}
+		if(page<1) {
+			page=1; 
+		}
+		List<Post> posts = postService.listPostByUser(user.getId(),page);
+		Map<String,Long> pager = postService.countPostByUser(user.getId(), page);
+		Map<Integer,String> statusMap = new HashMap<>();
+		statusMap.put(0, "已删除");
+		statusMap.put(1, "已发布");
+		statusMap.put(2, "已保存");
+		statusMap.put(3, "已撤回");
+		
+		mav.addObject("posts",posts);
+		mav.addObject("pager",pager);
+		mav.addObject("statusMap",statusMap);
+		return mav;
+	}
+	
+	/**
+	 * 更新帖子状态
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping("operation-post")
+	public void updatePostStatus(HttpServletRequest request, HttpServletResponse response) throws Exception{
+		request.setCharacterEncoding("UTF-8");
+		response.setCharacterEncoding("UTF-8");
+		PrintWriter out = response.getWriter();
+		boolean success = false;
+		String message = null;
+		try {
+			User user = (User) request.getSession().getAttribute("user");
+			if(user==null) throw new StoreException("未登录");
+			String pid = request.getParameter("pid");
+			String state = request.getParameter("state");
+			postService.updatePostStatus(pid,state);
+			success = true;
+			message = "操作成功";
+		}catch (StoreException e) {
+			e.printStackTrace();
+			message =e.getMessage();
+		}catch (Exception e) {
+			e.printStackTrace();
+			message ="服务器异常";
+		}finally {
+			String result = "{success:"+success+",msg:\""+message+"\"}";
+			out.println(result);
+			out.close();
+		}
+	}
+	
 	
 	private String saveCart(User user, Cart cart) throws Exception{
 		Map<Integer,List<Book>> map = new HashMap<>();

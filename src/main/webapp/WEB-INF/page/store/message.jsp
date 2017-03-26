@@ -80,10 +80,13 @@
    		<jsp:include page="head.jsp"></jsp:include>
 			<div class="col-sm-3 content-left">
 				<div>
-					<a href="personal" class="list-item">个人信息</a> <a
-						href="message" class="list-item myactive">我的消息</a> <a href="#"
-						class="list-item">我的书单</a> <a href="#" class="list-item">我的帖子</a>
-					<a href="#" class="list-item">修改密码</a>
+					<div>
+					<a href="personal" class="list-item">个人信息</a> 
+					<a href="message" class="list-item myactive">我的消息</a> 
+					<a href="order" class="list-item">我的书单</a> 
+					<a href="my-post" class="list-item">我的帖子</a>
+					<a href="modify-pass" class="list-item">修改密码</a>
+				</div>
 				</div>
 			</div>
 			<div class="col-sm-9 content-right register">

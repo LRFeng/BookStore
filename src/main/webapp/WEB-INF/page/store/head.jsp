@@ -177,6 +177,8 @@
 	
 	
 	function addCart(id,max,price,num){
+		num = parseInt(num);
+		price = parseFloat(price);
 		var cart = $.cookie('cart');
 		var flag = false;
 		for(var i=0;i<cart.books.length;i++){
@@ -186,17 +188,19 @@
 					alert("库存不足");
 					return;
 				}
-				cart.books[i].num = cart.books[i].num+1;
+				cart.books[i].num = cart.books[i].num+num;
 				flag = true;
 			}
 		}
 		if(!flag){
 			cart.books[cart.books.length] = {id:id,price:price,num:num,check:true};
 		}
-		cart.count = cart.count+num;
+		
+		cart.count = cart.count+num+0;
 		cart.sum = cart.sum+price*num;
 		$.cookie('cart',cart);
 		$("#cartSum").text(cart.sum.toFixed(2));
+		console.log(cart);
 	}
 	
 </script>
